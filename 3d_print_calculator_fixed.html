@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#174a36">
+<title>3D Print Calculator — Bambu Lab P1S</title>
+<style>
+:root{--green:#174a36;--green2:#21734d;--bright:#37b66a;--bg:#f3f6f3;--card:#fff;--text:#17231c;--muted:#66746b;--line:#dfe7e0;--soft:#e9f5ec;--danger:#b42318;--shadow:0 8px 24px rgba(20,60,38,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:linear-gradient(120deg,#123b2b,#21734d);color:white;padding:25px max(18px,calc((100vw - 1180px)/2));}
+header .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.13em;color:#bde7cb;font-weight:700}h1{font-size:clamp(25px,4vw,36px);line-height:1.1;margin:8px 0}header p{color:#d8eee0;margin:8px 0 0;max-width:680px}
+.wrap{max-width:1180px;margin:22px auto;padding:0 16px 40px}.tabs{display:flex;gap:8px;overflow:auto;margin-bottom:18px}.tab{border:1px solid var(--line);background:#fff;color:var(--green);padding:11px 15px;border-radius:12px;font-weight:700;white-space:nowrap;cursor:pointer}.tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.page{display:none}.page.active{display:block}.layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:18px;align-items:start}.stack{display:grid;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}h2{font-size:19px;margin:0 0 15px}h3{font-size:15px;margin:0 0 12px}.sub{font-size:13px;color:var(--muted);margin:-8px 0 15px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field.full{grid-column:1/-1}label{display:block;font-size:13px;color:#46564b;font-weight:650;margin-bottom:6px}input,select,textarea{width:100%;min-width:0;border:1px solid #cfdad1;border-radius:10px;padding:11px 12px;background:#fff;color:var(--text);font:inherit;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--green2);box-shadow:0 0 0 3px #d8f1df}input[type=checkbox]{width:auto}small,.hint{font-size:12px;color:var(--muted)}.btns{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.btn{border:0;border-radius:11px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer;background:var(--green);color:#fff}.btn.secondary{background:var(--soft);color:var(--green)}.btn.danger{background:#fff0ef;color:var(--danger)}.btn:active{transform:translateY(1px)}
+.result{background:linear-gradient(145deg,#153f2e,#21734d);color:#fff;border-radius:17px;padding:19px;margin-bottom:13px}.result .label{color:#d3eadb;font-size:13px}.price{font-size:clamp(30px,4vw,40px);font-weight:850;letter-spacing:-.04em;margin:3px 0 12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#ffffff14;border:1px solid #ffffff20;border-radius:12px;padding:11px}.stat span{display:block;color:#d4e9dc;font-size:12px}.stat strong{display:block;font-size:18px;margin-top:3px;overflow-wrap:anywhere}.rows{display:grid;gap:0}.calc-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.calc-row:last-child{border-bottom:0}.calc-row span{color:var(--muted)}.calc-row strong{text-align:right}.note{background:#fff8e8;border:1px solid #f2e2b7;color:#69501a;padding:12px;border-radius:12px;font-size:13px;margin-top:12px}.positive{color:#18804a}.negative{color:var(--danger)}.hidden{display:none!important}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:650px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:700;background:#f8faf8}td strong{font-size:14px}.empty{text-align:center;color:var(--muted);padding:28px 10px}.item-actions{display:flex;gap:6px}.mini{border:1px solid var(--line);background:#fff;padding:7px 9px;border-radius:8px;cursor:pointer;color:var(--green);font-weight:700}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h2{margin:0}.pill{background:var(--soft);color:var(--green);font-size:12px;font-weight:750;padding:5px 9px;border-radius:999px}.footer{font-size:12px;color:var(--muted);text-align:center;margin-top:20px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.result{position:static}.wrap{margin-top:14px}.card{padding:16px}}
+@media(max-width:480px){header{padding:22px 17px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.card{border-radius:15px}.btn{flex:1}.stats{grid-template-columns:1fr 1fr}.tabs{margin-left:-2px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Личный инструмент для мастерской</div>
+  <h1>3D Print Calculator</h1>
+  <p>Калькулятор себестоимости, цены продажи и прибыли для Bambu Lab P1S. Работает на телефоне и компьютере.</p>
+</header>
+<main class="wrap">
+  <nav class="tabs" aria-label="Разделы">
+    <button class="tab active" data-page="calc">🧮 Калькулятор</button>
+    <button class="tab" data-page="products">📦 Мои товары <span id="productsCount">0</span></button>
+    <button class="tab" data-page="history">📈 История расчётов</button>
+    <button class="tab" data-page="settings">⚙️ Настройки</button>
+  </nav>
+
+  <section class="page active" id="page-calc">
+    <div class="layout">
+      <div class="stack">
+        <div class="card">
+          <h2>1. Модель и печать</h2>
+          <p class="sub">Вводи данные из Bambu Studio. Если печатаешь партию, укажи количество изделий в партии.</p>
+          <div class="fields">
+            <div class="field full"><label for="productName">Название товара</label><input id="productName" placeholder="Например, автомобильный колпачок"></div>
+            <div class="field"><label for="weight">Пластик на изделие, г</label><input id="weight" type="number" min="0" step="0.1" value="80"></div>
+            <div class="field"><label for="hours">Время печати, ч</label><input id="hours" type="number" min="0" step="1" value="2"></div>
+            <div class="field"><label for="minutes">Дополнительные минуты</label><input id="minutes" type="number" min="0" max="59" step="1" value="30"></div>
+            <div class="field"><label for="quantity">Количество изделий в партии</label><input id="quantity" type="number" min="1" step="1" value="1"></div>
+            <div class="field"><label for="plasticPrice">Цена пластика, ₽/кг</label><input id="plasticPrice" type="number" min="0" step="10" value="1000"></div>
+            <div class="field"><label for="failure">Запас на брак и отходы, %</label><input id="failure" type="number" min="0" max="100" step="1" value="5"></div>
+            <div class="field"><label for="energyRate">Электричество, ₽/кВт·ч</label><input id="energyRate" type="number" min="0" step="0.1" value="8"></div>
+            <div class="field"><label for="power">Средняя мощность, Вт</label><input id="power" type="number" min="0" step="10" value="120"></div>
+            <div class="field"><label for="wear">Износ принтера, ₽/час</label><input id="wear" type="number" min="0" step="1" value="15"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>2. Дополнительные расходы</h2>
+          <div class="fields">
+            <div class="field"><label for="packaging">Упаковка на изделие, ₽</label><input id="packaging" type="number" min="0" step="1" value="30"></div>
+            <div class="field"><label for="labor">Труд и обработка на изделие, ₽</label><input id="labor" type="number" min="0" step="1" value="30"></div>
+            <div class="field"><label for="other">Прочие расходы на изделие, ₽</label><input id="other" type="number" min="0" step="1" value="0"></div>
+            <div class="field"><label for="logistics">Логистика на изделие, ₽</label><input id="logistics" type="number" min="0" step="1" value="0"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>3. Продажа и желаемая прибыль</h2>
+          <div class="fields">
+            <div class="field"><label for="platform">Канал продаж</label><select id="platform"><option value="ozon">Ozon / маркетплейс</option><option value="avito">Avito</option><option value="direct">Напрямую покупателю</option><option value="other">Другая площадка</option></select></div>
+            <div class="field"><label for="targetMargin">Желаемая маржа от выручки, %</label><input id="targetMargin" type="number" min="0" max="90" step="1" value="25"></div>
+            <div class="field"><label for="commission">Комиссия площадки, %</label><input id="commission" type="number" min="0" max="99" step="0.5" value="15"></div>
+            <div class="field"><label for="tax">Налог с выручки, %</label><input id="tax" type="number" min="0" max="99" step="0.1" value="6"></div>
+            <div class="field"><label for="extraFee">Прочие удержания с продажи, %</label><input id="extraFee" type="number" min="0" max="99" step="0.5" value="0"></div>
+            <div class="field"><label for="currentPrice">Текущая / желаемая цена, ₽</label><input id="currentPrice" type="number" min="0" step="1" placeholder="Необязательно"></div>
+          </div>
+          <div class="btns">
+            <button class="btn" id="calculateBtn">Рассчитать стоимость</button>
+            <button class="btn secondary" id="saveProductBtn">Сохранить товар</button>
+            <button class="btn secondary" id="saveHistoryBtn">Сохранить расчёт в историю</button>
+            <button class="btn secondary" id="resetBtn">Очистить поля</button>
+          </div>
+        </div>
+      </div>
+      <aside class="stack">
+        <div class="card">
+          <div class="result">
+            <div class="label" id="calcStatus">Если это сообщение не меняется после ввода данных, открой файл как сайт в Safari.</div>
+            <div class="price" id="recommendedPrice">— ₽</div>
+            <div class="stats">
+              <div class="stat"><span>Себестоимость 1 шт.</span><strong id="unitCost">— ₽</strong></div>
+              <div class="stat"><span>Прибыль с 1 шт.</span><strong id="unitProfit">— ₽</strong></div>
+              <div class="stat"><span>Цена без убытка</span><strong id="breakEven">— ₽</strong></div>
+              <div class="stat"><span>Прибыль с партии</span><strong id="batchProfit">— ₽</strong></div>
+            </div>
+          </div>
+          <h3>Расшифровка себестоимости</h3>
+          <div class="rows" id="breakdown">
+            <div class="empty">Введи параметры модели, чтобы увидеть расчёт.</div>
+          </div>
+          <div class="note">Важно: мощность и износ заданы как начальные ориентиры. Уточни их по фактическому потреблению и стоимости обслуживания принтера. Комиссии, логистика и налоги зависят от тарифа и режима налогообложения.</div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="page" id="page-products">
+    <div class="card">
+      <div class="section-head"><h2>Мои сохранённые товары</h2><span class="pill" id="productsPill">0 товаров</span></div>
+      <p class="sub">Сохраняй настройки каждой модели, чтобы не вводить параметры заново.</p>
+      <div class="table-wrap"><table><thead><tr><th>Товар</th><th>Вес</th><th>Время</th><th>Себестоимость</th><th>Цена</th><th>Действия</th></tr></thead><tbody id="productsTable"></tbody></table></div>
+      <div class="empty hidden" id="productsEmpty">Пока нет сохранённых товаров. Рассчитай модель и нажми «Сохранить товар».</div>
+      <div class="btns"><button class="btn secondary" id="exportProducts">Экспорт товаров (JSON)</button><button class="btn secondary" id="exportCsv">Скачать таблицу CSV</button><button class="btn danger" id="clearProducts">Удалить все товары</button></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-history">
+    <div class="card">
+      <div class="section-head"><h2>История расчётов</h2><span class="pill" id="historyPill">0 записей</span></div>
+      <p class="sub">Снимок расчёта сохраняется вместе с датой, расходами и ценой.</p>
+      <div class="table-wrap"><table><thead><tr><th>Дата</th><th>Товар</th><th>Количество</th><th>Себестоимость/шт.</th><th>Цена/шт.</th><th>Прибыль с партии</th><th>Действия</th></tr></thead><tbody id="historyTable"></tbody></table></div>
+      <div class="empty hidden" id="historyEmpty">История пока пуста. Сохрани первый расчёт.</div>
+      <div class="btns"><button class="btn secondary" id="exportHistory">Экспорт истории (JSON)</button><button class="btn danger" id="clearHistory">Очистить историю</button></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-settings">
+    <div class="layout">
+      <div class="card">
+        <h2>Настройки по умолчанию</h2>
+        <p class="sub">Эти значения используются как стартовые для новых расчётов. Изменение здесь не переписывает уже сохранённые товары и расчёты.</p>
+        <div class="fields">
+          <div class="field"><label for="sPlastic">Пластик, ₽/кг</label><input id="sPlastic" type="number" min="0" value="1000"></div>
+          <div class="field"><label for="sPower">Мощность, Вт</label><input id="sPower" type="number" min="0" value="120"></div>
+          <div class="field"><label for="sEnergy">Электричество, ₽/кВт·ч</label><input id="sEnergy" type="number" min="0" value="8"></div>
+          <div class="field"><label for="sWear">Износ, ₽/час</label><input id="sWear" type="number" min="0" value="15"></div>
+          <div class="field"><label for="sFailure">Брак и отходы, %</label><input id="sFailure" type="number" min="0" max="100" value="5"></div>
+          <div class="field"><label for="sMargin">Желаемая маржа, %</label><input id="sMargin" type="number" min="0" max="90" value="25"></div>
+        </div>
+        <div class="btns"><button class="btn" id="saveSettings">Сохранить настройки</button><button class="btn secondary" id="applySettings">Применить к калькулятору</button></div>
+      </div>
+      <div class="card">
+        <h2>Резервная копия данных</h2>
+        <p>Товары и история хранятся в локальном хранилище браузера на этом устройстве.</p>
+        <p class="hint">Очистка данных браузера или переход на другое устройство может удалить или не перенести записи. Регулярно экспортируй резервную копию.</p>
+        <div class="btns"><button class="btn secondary" id="backupAll">Скачать резервную копию</button><label class="btn secondary" for="importFile" style="display:inline-flex;align-items:center;margin:0;cursor:pointer">Импортировать копию</label><input id="importFile" type="file" accept=".json,application/json" class="hidden"></div>
+        <div class="note">Это автономное веб-приложение: оно не отправляет твои данные на сервер. Для синхронизации между телефоном и компьютером понадобится отдельное облачное хранилище или база данных.</div>
+      </div>
+    </div>
+  </section>
+  <div class="footer">3D Print Calculator · расчёт — оценка, а не бухгалтерская или налоговая консультация.</div>
+</main>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const ids = ['productName','weight','hours','minutes','quantity','plasticPrice','failure','energyRate','power','wear','packaging','labor','other','logistics','platform','targetMargin','commission','tax','extraFee','currentPrice'];
+const defaults = {productName:'',weight:80,hours:2,minutes:30,quantity:1,plasticPrice:1000,failure:5,energyRate:8,power:120,wear:15,packaging:30,labor:30,other:0,logistics:0,platform:'ozon',targetMargin:25,commission:15,tax:6,extraFee:0,currentPrice:''};
+let products = load('p1s_products', []), history = load('p1s_history', []), settings = load('p1s_settings', {plasticPrice:1000,power:120,energyRate:8,wear:15,failure:5,targetMargin:25}), lastCalc = null;
+function load(k,f){try{const v=JSON.parse(localStorage.getItem(k));return v??f}catch{return f}}
+function store(){localStorage.setItem('p1s_products',JSON.stringify(products));localStorage.setItem('p1s_history',JSON.stringify(history));localStorage.setItem('p1s_settings',JSON.stringify(settings))}
+function num(id){const v=$(id).value.trim();return v===''?0:Number(v)}
+function fmt(n){return Number(n).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽'}
+function whole(n){return Math.ceil(Math.max(0,n))+' ₽'}
+function valObj(){const o={};ids.forEach(id=>o[id]=$(id).value);return o}
+function setFields(o){ids.forEach(id=>{if(o[id]!==undefined)$(id).value=o[id]})}
+function getCalc(){
+ const v=valObj(), n={};ids.forEach(id=>{n[id]=['productName','platform','currentPrice'].includes(id)?v[id]:Number(v[id]||0)});
+ const h=n.hours+n.minutes/60, q=Math.max(1,Math.floor(n.quantity)), fail=Math.max(0,Math.min(100,n.failure))/100;
+ const plastic=n.weight*n.plasticPrice/1000*(1+fail);
+ const energy=h*n.power/1000*n.energyRate;
+ const wear=h*n.wear;
+ const materialsPer=plastic, variableCost=materialsPer+energy+wear+n.packaging+n.labor+n.other+n.logistics;
+ const costBatch=variableCost*q, commission=Math.max(0,Math.min(99,n.commission))/100, tax=Math.max(0,Math.min(99,n.tax))/100, otherFee=Math.max(0,Math.min(99,n.extraFee))/100;
+ const deductions=commission+tax+otherFee, margin=Math.max(0,Math.min(90,n.targetMargin))/100;
+ const breakEven=deductions<1?variableCost/(1-deductions):Infinity;
+ const recommended=deductions+margin<1?variableCost/(1-deductions-margin):Infinity;
+ const current=n.currentPrice>0?n.currentPrice:0;
+ const profitAt=p=>p*(1-deductions)-variableCost;
+ return {v,n,h,q,plastic,energy,wear,materialsPer,variableCost,costBatch,commission,tax,otherFee,deductions,margin,breakEven,recommended,current,profitAt,unitProfit:profitAt(recommended),batchProfit:profitAt(recommended)*q};
+}
+function calculate(){
+ const c=getCalc();lastCalc=c;
+ const status=$('calcStatus'); if(status) status.textContent='Расчёт обновлён автоматически · цена за 1 шт.';
+ $('recommendedPrice').textContent=Number.isFinite(c.recommended)?whole(c.recommended):'Проверь %';
+ $('unitCost').textContent=fmt(c.variableCost);
+ $('unitProfit').textContent=Number.isFinite(c.unitProfit)?fmt(c.unitProfit):'—';
+ $('batchProfit').textContent=Number.isFinite(c.batchProfit)?fmt(c.batchProfit):'—';
+ $('breakEven').textContent=Number.isFinite(c.breakEven)?whole(c.breakEven):'—';
+ const rows=[
+ ['Пластик с запасом на брак',c.plastic],
+ ['Электричество',c.energy],
+ ['Износ принтера',c.wear],
+ ['Упаковка',c.n.packaging],
+ ['Труд и обработка',c.n.labor],
+ ['Прочие расходы',c.n.other],
+ ['Логистика',c.n.logistics],
+ ['Себестоимость 1 изделия',c.variableCost],
+ ['Себестоимость партии ('+c.q+' шт.)',c.costBatch],
+ ['Удержания с продажи',((c.commission+c.tax+c.otherFee)*100).toFixed(1).replace('.',',')+'%']
+ ];
+ $('breakdown').innerHTML=rows.map((r,i)=>`<div class="calc-row"><span>${r[0]}</span><strong>${i===9?r[1]:fmt(r[1])}</strong></div>`).join('');
+ if(c.current){
+ const p=c.profitAt(c.current);
+ $('breakdown').insertAdjacentHTML('beforeend',`<div class="calc-row"><span>Прибыль при текущей цене (${fmt(c.current)})</span><strong class="${p>=0?'positive':'negative'}">${fmt(p)} / шт.</strong></div>`);
+ }
+ return c;
+}
+function snapshot(c){return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:c.n.productName.trim()||'Без названия',values:c.v,weight:c.n.weight,time:c.h,cost:c.variableCost,price:c.recommended,profit:c.unitProfit,quantity:c.q,batchProfit:c.batchProfit,date:new Date().toISOString()}}
+function saveProduct(){const c=calculate(), p=snapshot(c);const existing=products.findIndex(x=>x.name.toLowerCase()===p.name.toLowerCase());if(existing>=0){p.id=products[existing].id;products[existing]=p}else products.unshift(p);store();renderProducts();alert('Товар сохранён.')}
+function saveHistory(){const c=calculate();history.unshift(snapshot(c));history=history.slice(0,500);store();renderHistory();alert('Расчёт добавлен в историю.')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderProducts(){
+ $('productsCount').textContent=products.length;$('productsPill').textContent=products.length+' товаров';
+ $('productsEmpty').classList.toggle('hidden',products.length>0);
+ $('productsTable').innerHTML=products.map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${p.weight} г</td><td>${p.time.toLocaleString('ru-RU',{maximumFractionDigits:2})} ч</td><td>${fmt(p.cost)}</td><td>${Number.isFinite(p.price)?whole(p.price):'—'}</td><td><div class="item-actions"><button class="mini" data-load="${p.id}">Открыть</button><button class="mini" data-del="${p.id}">Удалить</button></div></td></tr>`).join('');
+}
+function renderHistory(){
+ $('historyPill').textContent=history.length+' записей';$('historyEmpty').classList.toggle('hidden',history.length>0);
+ $('historyTable').innerHTML=history.map(p=>`<tr><td>${new Date(p.date).toLocaleString('ru-RU')}</td><td><strong>${esc(p.name)}</strong></td><td>${p.quantity}</td><td>${fmt(p.cost)}</td><td>${Number.isFinite(p.price)?whole(p.price):'—'}</td><td>${Number.isFinite(p.batchProfit)?fmt(p.batchProfit):'—'}</td><td><button class="mini" data-hdel="${p.id}">Удалить</button></td></tr>`).join('');
+}
+function download(name,content,type='application/json'){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function exportJSON(obj,name){download(name,JSON.stringify(obj,null,2))}
+function applySettings(){Object.entries(settings).forEach(([k,v])=>{if($(k))$(k).value=v});calculate()}
+function showPage(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===name));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name))}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+$('calculateBtn').addEventListener('click',calculate);$('saveProductBtn').addEventListener('click',saveProduct);$('saveHistoryBtn').addEventListener('click',saveHistory);
+$('resetBtn').addEventListener('click',()=>{setFields(defaults);calculate()});
+ids.forEach(id=>{ $(id).addEventListener('input',calculate); $(id).addEventListener('change',calculate); });
+window.addEventListener('pageshow', calculate);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) calculate(); });
+$('productsTable').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.load){const p=products.find(x=>x.id===b.dataset.load);if(p){setFields(p.values);showPage('calc');calculate()}}if(b.dataset.del){products=products.filter(x=>x.id!==b.dataset.del);store();renderProducts()}});
+$('historyTable').addEventListener('click',e=>{const b=e.target.closest('button');if(b?.dataset.hdel){history=history.filter(x=>x.id!==b.dataset.hdel);store();renderHistory()}});
+$('clearProducts').addEventListener('click',()=>{if(confirm('Удалить все сохранённые товары?')){products=[];store();renderProducts()}});
+$('clearHistory').addEventListener('click',()=>{if(confirm('Очистить всю историю расчётов?')){history=[];store();renderHistory()}});
+$('exportProducts').addEventListener('click',()=>exportJSON(products,'3d-products.json'));
+$('exportHistory').addEventListener('click',()=>exportJSON(history,'3d-history.json'));
+$('exportCsv').addEventListener('click',()=>{const csv=[['Название','Вес, г','Время, ч','Себестоимость, руб','Рекомендуемая цена, руб','Прибыль, руб'],...products.map(p=>[p.name,p.weight,p.time,p.cost,p.price,p.profit])].map(row=>row.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');download('3d-products.csv','\uFEFF'+csv,'text/csv;charset=utf-8')});
+function syncSettingsFromFields(){settings={plasticPrice:Number($('sPlastic').value)||0,power:Number($('sPower').value)||0,energyRate:Number($('sEnergy').value)||0,wear:Number($('sWear').value)||0,failure:Number($('sFailure').value)||0,targetMargin:Number($('sMargin').value)||0};store()}
+$('saveSettings').addEventListener('click',()=>{syncSettingsFromFields();alert('Настройки сохранены.')});
+$('applySettings').addEventListener('click',()=>{syncSettingsFromFields();applySettings();showPage('calc')});
+$('backupAll').addEventListener('click',()=>exportJSON({app:'3D Print Calculator',version:1,exportedAt:new Date().toISOString(),products,history,settings},'3d-print-backup.json'));
+$('importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!confirm('Импорт заменит текущие товары, историю и настройки. Продолжить?'))return;products=Array.isArray(d.products)?d.products:[];history=Array.isArray(d.history)?d.history:[];settings=d.settings||settings;store();renderProducts();renderHistory();Object.entries(settings).forEach(([k,v])=>{const id='s'+k[0].toUpperCase()+k.slice(1);if($(id))$(id).value=v});alert('Резервная копия импортирована.')}catch{alert('Не удалось прочитать файл. Проверь, что это JSON-копия приложения.')}finally{e.target.value=''}});
+Object.entries(settings).forEach(([k,v])=>{const id='s'+k[0].toUpperCase()+k.slice(1);if($(id))$(id).value=v});
+renderProducts();renderHistory();calculate();
+})();
+</script>
+</body>
+</html>
